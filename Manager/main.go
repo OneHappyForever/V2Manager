@@ -80,7 +80,7 @@ func initMysql() {
     Mydb, _ = sql.Open("mysql", Mysql_Server)
     Mydb.SetMaxOpenConns(Mysql_MaxOpenConns)
     Mydb.SetMaxIdleConns(Mysql_MaxIdleConns)
-	Mydb.SetConnMaxLifetime(Mysql_ConnMaxLifetime*time.Second)
+	Mydb.SetConnMaxLifetime(time.Duration(Mysql_ConnMaxLifetime)*time.Second)
 }
 
 func start(){

@@ -11,7 +11,7 @@
     "V2rayClientAddr": "127.0.0.1:8301",
     "V2rayTag": "proxy,proxy2",
     "Email": "@test.com",
-    "AlterID": 64,
+    "AlterID": 2,
     "Level": 1,
-    "CheckRate": 64
+    "CheckRate": 60
 }

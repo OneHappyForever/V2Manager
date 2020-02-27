@@ -45,6 +45,7 @@ var Mysql_Db string
 var Mysql_TLS string
 var Mysql_MaxOpenConns int
 var Mysql_MaxIdleConns int
+var Mysql_ConnMaxLifetime int
 var client command.HandlerServiceClient
 var statsClient statscmd.StatsServiceClient
 var V2rayClientAddr string
@@ -79,6 +80,7 @@ func initMysql() {
     Mydb, _ = sql.Open("mysql", Mysql_Server)
     Mydb.SetMaxOpenConns(Mysql_MaxOpenConns)
     Mydb.SetMaxIdleConns(Mysql_MaxIdleConns)
+	Mydb.SetConnMaxLifetime(Mysql_ConnMaxLifetime*time.Second)
 }
 
 func start(){
@@ -115,7 +117,7 @@ func start(){
         timeSleep(1)
     }
     serviceLogger(fmt.Sprintf("Connecting to Mysql Database!(TLS:%s)", Mysql_TLS), 0)
-    serviceLogger(fmt.Sprintf("Mysql Setting: MaxOpen(%v), MaxIdle(%v)", Mysql_MaxOpenConns, Mysql_MaxIdleConns), 0)
+    serviceLogger(fmt.Sprintf("Mysql Setting: MaxOpen(%v), MaxIdle(%v), MaxLifetime(%v)", Mysql_MaxOpenConns, Mysql_MaxIdleConns,  Mysql_ConnMaxLifetime), 0)
     //fmt.Printf("Connecting to Mysql: %s:%s, User: %s, password:%s, Using Database: %s\n", Mysql_Host, Mysql_Port, Mysql_User, Mysql_Password, Mysql_Db)
     Mysql_Server = ""
     Mysql_Server += Mysql_User + ":" + Mysql_Password + "@tcp(" + Mysql_Host + ":" + Mysql_Port + ")/" + Mysql_Db + "?charset=utf8&tls=" + Mysql_TLS
@@ -133,6 +135,7 @@ func checkConfig(config parseConfig.Config) error{
     CheckItems["Mysql_TLS"] = "string"
     CheckItems["Mysql_MaxOpenConns"] = "float64"
     CheckItems["Mysql_MaxIdleConns"] = "float64"
+	CheckItems["Mysql_ConnMaxLifetime"] = "float64"
     CheckItems["V2rayClientAddr"] = "string"
     CheckItems["V2rayTag"] = "string"
     CheckItems["Email"] = "string"
@@ -167,6 +170,7 @@ func initConfig(config parseConfig.Config){
     Mysql_TLS = config.Get("Mysql_TLS").(string)
     Mysql_MaxOpenConns = int(config.Get("Mysql_MaxOpenConns").(float64))
     Mysql_MaxIdleConns = int(config.Get("Mysql_MaxIdleConns").(float64))
+	Mysql_ConnMaxLifetime = int(config.Get("Mysql_ConnMaxLifetime").(float64))
     V2rayClientAddr = config.Get("V2rayClientAddr").(string)
     V2rayTag = config.Get("V2rayTag").(string)
     EmailPostfix = config.Get("Email").(string)

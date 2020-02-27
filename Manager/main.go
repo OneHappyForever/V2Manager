@@ -521,26 +521,29 @@ func makeUpdateQueue(umymap map[string]map[string]string){
 
 func addUser(u *VUser) {
     var ctx = context.Background();
-    resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
-        Tag: V2rayTag,
-        Operation: serial.ToTypedMessage(&command.AddUserOperation{
-            User: &protocol.User{
-                Level: u.GetLevel(),
-                Email: u.GetEmail(),
-                Account: serial.ToTypedMessage(&vmess.Account{
-                    Id:               u.GetUUID(),
-                    AlterId:          u.GetAlterID(),
-                    SecuritySettings: &protocol.SecurityConfig{Type: protocol.SecurityType_AUTO},
-                }),
-            },
-        }),
-    })
-    if err != nil {
-        serviceLogger(fmt.Sprintf("Failed to add Email: %s, Error:%v", u.GetEmail(), err), 31)
-    } else {
-        resp = resp
-        serviceLogger(fmt.Sprintf("Added Email: %s, UUID: %s", u.GetEmail(), u.GetUUID()), 0)
-    }
+	tags := strings.Split(V2rayTag, ",")
+	for _,element := range tags{
+		resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
+			Tag: element,
+			Operation: serial.ToTypedMessage(&command.AddUserOperation{
+				User: &protocol.User{
+					Level: u.GetLevel(),
+					Email: u.GetEmail(),
+					Account: serial.ToTypedMessage(&vmess.Account{
+						Id:               u.GetUUID(),
+						AlterId:          u.GetAlterID(),
+						SecuritySettings: &protocol.SecurityConfig{Type: protocol.SecurityType_AUTO},
+					}),
+				},
+			}),
+		})
+		if err != nil {
+			serviceLogger(fmt.Sprintf("Failed to add Email: %s, Error:%v", u.GetEmail(), err), 31)
+		} else {
+			resp = resp
+			serviceLogger(fmt.Sprintf("Added Email: %s, UUID: %s", u.GetEmail(), u.GetUUID()), 0)
+		}
+	}
 }
 
 func testAddUser() error{
@@ -553,60 +556,69 @@ func testAddUser() error{
         Level:     Level,
         ID:        0,
     }
-    resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
-        Tag: V2rayTag,
-        Operation: serial.ToTypedMessage(&command.AddUserOperation{
-            User: &protocol.User{
-                Level: u.GetLevel(),
-                Email: u.GetEmail(),
-                Account: serial.ToTypedMessage(&vmess.Account{
-                    Id:               u.GetUUID(),
-                    AlterId:          u.GetAlterID(),
-                    SecuritySettings: &protocol.SecurityConfig{Type: protocol.SecurityType_AUTO},
-                }),
-            },
-        }),
-    })
-    if err != nil {
-        serviceLogger(fmt.Sprintf("Failed to add Test User: %s, Please check V2Ray daemon!", u.GetEmail()), 31)
-        return err
-    } else {
-        resp = resp
-        serviceLogger("Connected To V2Ray Successfully!", 32)
-        testRemoveUser(u)
-    }
+	tags := strings.Split(V2rayTag, ",")
+	for _,element := range tags{
+		resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
+			Tag: element,
+			Operation: serial.ToTypedMessage(&command.AddUserOperation{
+				User: &protocol.User{
+					Level: u.GetLevel(),
+					Email: u.GetEmail(),
+					Account: serial.ToTypedMessage(&vmess.Account{
+						Id:               u.GetUUID(),
+						AlterId:          u.GetAlterID(),
+						SecuritySettings: &protocol.SecurityConfig{Type: protocol.SecurityType_AUTO},
+					}),
+				},
+			}),
+		})
+		if err != nil {
+			serviceLogger(fmt.Sprintf("Failed to add Test User: %s, Please check V2Ray daemon!", u.GetEmail()), 31)
+			return err
+		} else {
+			resp = resp
+			serviceLogger("Connected To V2Ray Successfully!", 32)
+			testRemoveUser(u)
+		}
+	}
     return nil
 }
 
 func removeUser(u *VUser) {
     var ctx = context.Background();
-    resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
-        Tag: V2rayTag,
-        Operation: serial.ToTypedMessage(&command.RemoveUserOperation{
-            Email: u.GetEmail(),
-        }),
-    })
-    if err != nil {
-        serviceLogger(fmt.Sprintf("Failed to Remove Email:%s, Error: %v", u.GetEmail(), err), 31)
-    } else {
-        resp = resp
-        serviceLogger(fmt.Sprintf("Removed Email: %s, UUID: %s", u.GetEmail(), u.GetUUID()), 0)
-    }
+	tags := strings.Split(V2rayTag, ",")
+	for _,element := range tags{
+		resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
+			Tag: element,
+			Operation: serial.ToTypedMessage(&command.RemoveUserOperation{
+				Email: u.GetEmail(),
+			}),
+		})
+		if err != nil {
+			serviceLogger(fmt.Sprintf("Failed to Remove Email:%s, Error: %v", u.GetEmail(), err), 31)
+		} else {
+			resp = resp
+			serviceLogger(fmt.Sprintf("Removed Email: %s, UUID: %s", u.GetEmail(), u.GetUUID()), 0)
+		}
+	}
 }
 
 func testRemoveUser(u *VUser) {
     var ctx = context.Background();
-    resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
-        Tag: V2rayTag,
-        Operation: serial.ToTypedMessage(&command.RemoveUserOperation{
-            Email: u.GetEmail(),
-        }),
-    })
-    if err != nil {
-        serviceLogger(fmt.Sprintf("Failed to Remove Test Email:%s, Error: %v", u.GetEmail(), err), 31)
-    } else {
-        resp = resp
-    }
+	tags := strings.Split(V2rayTag, ",")
+	for _,element := range tags{
+		resp, err := client.AlterInbound(ctx, &command.AlterInboundRequest{
+			Tag: element,
+			Operation: serial.ToTypedMessage(&command.RemoveUserOperation{
+				Email: u.GetEmail(),
+			}),
+		})
+		if err != nil {
+			serviceLogger(fmt.Sprintf("Failed to Remove Test Email:%s, Error: %v", u.GetEmail(), err), 31)
+		} else {
+			resp = resp
+		}
+	}
 }
 
 func GetUserTrafficAndReset(u *VUser) TrafficInfo {
